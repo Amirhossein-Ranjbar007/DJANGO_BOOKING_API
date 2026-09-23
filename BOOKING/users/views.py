@@ -2,10 +2,12 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserRegisterSerializer,UserSerializer
 from .models import User
-
+from .throttlers import RegisterThrottle
 
 
 class UserRegisterView(APIView):
+    throttle_classes = [RegisterThrottle]
+
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
