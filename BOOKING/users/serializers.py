@@ -33,12 +33,13 @@ class UserRegisterSerializer(serializers.Serializer):
 
 
 
-
-
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ['email', 'phone', 'date_joined', 'is_staff']
+        fields = ['email', 'phone', 'first_name', 'last_name', 'date_joined', 'is_staff']
+
+        read_only_fields = ['date_joined', 'is_staff']
+
 
 class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=True, required=True)

@@ -2,7 +2,9 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import UserRegisterSerializer,UserSerializer
 from .models import User
-from .throttlers import RegisterThrottle
+from .throttlers import RegisterThrottle,ProfileThrottle
+from rest_framework.permissions import IsAuthenticated
+from rest_framework.throttling import AnonRateThrottle,UserRateThrottle
 
 
 class UserRegisterView(APIView):
@@ -11,17 +13,27 @@ class UserRegisterView(APIView):
     def post(self, request):
         serializer = UserRegisterSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
-        vd = serializer.validated_data
-        user = User(email=vd['email'], first_name=vd['first_name'], last_name=vd['last_name'],
-                    phone=vd['phone'])
-        user.set_password(vd['password'])
-        user.save()
+        user = serializer.save()
         return Response(UserSerializer(user).data)
 
 
+class UserProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [ProfileThrottle]
 
+    def get(self, request):
+        serializer = UserSerializer(instance=request.user)
+        return Response(serializer.data)
 
+class UserChangeProfileView(APIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
 
-
+    def patch(self, request):
+        serializer = UserSerializer(instance=request.user, data=request.data, partial=True)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+        return Response(serializer.data)
 
 
