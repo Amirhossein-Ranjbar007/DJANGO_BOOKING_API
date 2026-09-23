@@ -1,6 +1,8 @@
 from rest_framework import serializers
 from .models import User
 from django.contrib.auth.password_validation import validate_password
+from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import TokenError
 
 
 
@@ -74,6 +76,25 @@ class ChangePasswordSerializer(serializers.Serializer):
         instance.set_password(validated_data['new_password'])  # instance=request.user
         instance.save()
         return instance
+
+class UserLogoutSerializer(serializers.Serializer):
+    refresh_token = serializers.CharField()
+
+    def create(self, validated_data):
+        
+        try:
+            refresh_token = RefreshToken(validated_data['refresh_token'])
+        except TokenError:
+            raise serializers.ValidationError('Invalid refresh token!')
+
+        token = refresh_token['user_id']
+        user = self.context['request'].user
+        if user.id == token:
+            refresh_token.blacklist()
+            return {}
+        raise serializers.ValidationError ('something went wrong!')
+
+
 
 
 
