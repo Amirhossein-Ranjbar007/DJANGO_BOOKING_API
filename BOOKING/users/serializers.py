@@ -81,7 +81,7 @@ class UserLogoutSerializer(serializers.Serializer):
     refresh_token = serializers.CharField()
 
     def create(self, validated_data):
-        
+
         try:
             refresh_token = RefreshToken(validated_data['refresh_token'])
         except TokenError:
