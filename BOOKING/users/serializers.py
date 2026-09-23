@@ -1,5 +1,6 @@
 from rest_framework import serializers
 from .models import User
+from django.contrib.auth.password_validation import validate_password
 
 
 
@@ -45,3 +46,38 @@ class UserLoginSerializer(serializers.Serializer):
     email = serializers.EmailField(max_length=True, required=True)
     phone = serializers.CharField(max_length=11, required=True)
     password = serializers.CharField(required=True)
+
+
+class ChangePasswordSerializer(serializers.Serializer):
+    old_password = serializers.CharField(required=True)
+    new_password = serializers.CharField(required=True)
+    new_password_confirmation = serializers.CharField(required=True)
+
+    def validate_old_password(self, value):
+        user = self.context['request'].user
+        if not user.check_password(value):
+            raise serializers.ValidationError('wrong password!')
+        return value
+
+
+
+    def validate(self, data):
+        if data['new_password'] != data['new_password_confirmation']:
+            raise serializers.ValidationError ("passwords must be the same!")
+        if data['new_password'] == data['old_password']:
+            raise serializers.ValidationError('you need to choose a new password!')
+        validate_password(data['new_password'], self.context['request'].user)
+        return data
+
+
+    def update(self, instance, validated_data):
+        instance.set_password(validated_data['new_password'])  # instance=request.user
+        instance.save()
+        return instance
+
+
+
+
+
+
+

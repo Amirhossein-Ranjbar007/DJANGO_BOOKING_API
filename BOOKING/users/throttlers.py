@@ -20,4 +20,13 @@ class ProfileThrottle(SimpleRateThrottle):
         indent = self.get_ident(request)
         return f"profile:{email}:{phone}:{indent}"
 
+class ChangePasswordThrottle(SimpleRateThrottle):
+
+    scope = 'change_password'
+    def get_cache_key(self, request, view):
+        email = request.user.email
+        indent = self.get_ident(request)
+        return f"change-password{email}:{indent}"
+
+
 

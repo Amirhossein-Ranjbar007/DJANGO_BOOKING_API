@@ -148,6 +148,7 @@ REST_FRAMEWORK = {
 
         'register': '5/hour',
         'profile': '10/hour',
+        'change_password': '1/day',
     }
 }
 

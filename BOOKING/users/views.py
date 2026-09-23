@@ -1,8 +1,8 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from .serializers import UserRegisterSerializer,UserSerializer
+from .serializers import UserRegisterSerializer,UserSerializer,ChangePasswordSerializer
 from .models import User
-from .throttlers import RegisterThrottle,ProfileThrottle
+from .throttlers import RegisterThrottle,ProfileThrottle,ChangePasswordThrottle
 from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle,UserRateThrottle
 
@@ -35,5 +35,16 @@ class UserChangeProfileView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.data)
+
+class ChangePasswordView(APIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [ChangePasswordThrottle]
+
+    def patch(self, request):
+        serializer = ChangePasswordSerializer(instance=request.user, data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            serializer.save()
+            return Response(serializer.data)
+
 
 
