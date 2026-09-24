@@ -1,7 +1,7 @@
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from .serializers import (UserRegisterSerializer,UserSerializer,ChangePasswordSerializer,
-UserLogoutSerializer,HostProfileSerializer)
+UserLogoutSerializer)
 
 from .models import User
 from .throttlers import RegisterThrottle,ProfileThrottle,ChangePasswordThrottle
