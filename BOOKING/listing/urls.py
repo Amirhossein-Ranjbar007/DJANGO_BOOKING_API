@@ -6,7 +6,8 @@ app_name = 'listing'
 
 url_patterns = [
     path('category/', views.CategoryView.as_view(), name='category'),
-    path('space/', views.SpaceListView.as_view(), name='space'),
+    path('list/', views.SpaceListView.as_view(), name='space_list'),
+    path('detail/<int:id>/', views.SpacesDetailView.as_view(), name='space_detail'),
 ]
 
 
