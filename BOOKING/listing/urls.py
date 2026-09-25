@@ -4,7 +4,7 @@ from . import views
 app_name = 'listing'
 
 
-url_patterns = [
+urlpatterns = [
     path('category/', views.CategoryView.as_view(), name='category'),
     path('list/', views.SpaceListView.as_view(), name='space_list'),
     path('detail/<int:id>/', views.SpacesDetailView.as_view(), name='space_detail'),

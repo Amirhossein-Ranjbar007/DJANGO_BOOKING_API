@@ -154,6 +154,7 @@ REST_FRAMEWORK = {
         'register': '5/hour',
         'profile': '10/hour',
         'change_password': '1/day',
+        'space_create': '6/hour'
     },
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',

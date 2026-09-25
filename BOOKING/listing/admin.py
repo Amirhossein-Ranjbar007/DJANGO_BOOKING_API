@@ -35,7 +35,7 @@ class AmenityAdmin(admin.ModelAdmin):
 @admin.register(SpaceImage)
 class SpaceImageAdmin(admin.ModelAdmin):
 
-    list_display = ['space__display_name', 'created_at', 'is_primary']
+    list_display = ['created_at', 'is_primary']
     search_fields = ['space__title']
     list_filter = ['is_primary']
 

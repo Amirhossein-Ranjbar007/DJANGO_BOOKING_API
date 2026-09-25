@@ -50,7 +50,7 @@ class Space(models.Model):
     latitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     longitude = models.DecimalField(max_digits=9, decimal_places=6, blank=True, null=True)
     status = models.CharField(max_length=20, choices=SpaceStatus.choices, default=SpaceStatus.DRAFT)
-    capacity = models.PositiveIntegerField()
+    capacity = models.PositiveIntegerField(blank=True, null=True)
 
 
 
@@ -60,7 +60,7 @@ class Space(models.Model):
 
 class SpaceImage(models.Model):
 
-    space = models.ForeignKey(Space, on_delete=models.CASCADE)
+    space = models.ForeignKey(Space, on_delete=models.CASCADE, related_name='images')
     image = models.ImageField()
     is_primary = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)

@@ -3,15 +3,19 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.filters import OrderingFilter, SearchFilter
-from .serializers import CategorySerializer,SpaceSerializer, SpaceDetailSerializer
-from .models import Category, Space
+from .serializers import CategorySerializer,SpaceSerializer, SpaceDetailSerializer, SpaceCreateSerializer
+from .models import Category, Space, SpaceImage
 from .pagination import CategoryPagination, SpacePagination
 from rest_framework.throttling import AnonRateThrottle,UserRateThrottle
 from django_filters.rest_framework import DjangoFilterBackend
 from .filters import SpaceFilter
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
-
+from rest_framework.permissions import IsAuthenticated
+from .throttlers import SpaceCreateThrottle
+from rest_framework.parsers import MultiPartParser,FormParser
+from django.db import transaction
+from users.models import HostProfile
 
 
 class CategoryView(ListAPIView):
@@ -61,7 +65,31 @@ class SpacesDetailView(APIView):
         return Response(serializer.data, status=200)
 
 
+class SpaceCreateView(APIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [SpaceCreateThrottle]
+    parser_classes = [MultiPartParser, FormParser]
 
+    @transaction.atomic()
+    def post(self, request):
+
+        images = request.FILE.getlist('images')
+
+        has_profile, create = HostProfile.objects.get_or_create(
+            user=request.user, defaults={
+                'name': f"{request.user.first_name} {request.user.last_name}",
+        }
+                                                                )
+
+        serializer = SpaceCreateSerializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+
+        space = serializer.save()
+
+        for image in images:
+            SpaceImage.objects.create(space=space, image=image)
+
+        return Response(SpaceDetailSerializer(space).data, status=201)
 
 
 
