@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'listing.apps.ListingConfig',
 
     'rest_framework_simplejwt.token_blacklist',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
