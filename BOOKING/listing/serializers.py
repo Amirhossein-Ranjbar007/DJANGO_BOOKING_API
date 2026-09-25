@@ -11,6 +11,12 @@ class CategorySerializer(serializers.ModelSerializer):
         fields = ['name', 'slug', 'description', 'is_active']
 
 
+class SpaceSerializer(serializers.ModelSerializer):
+
+    class Meta:
+        model = Space
+        fields = ['title', 'category', 'host', 'city', 'price', 'price_unit', 'updated_at']
+
 
 
 
