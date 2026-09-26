@@ -3,7 +3,8 @@ from rest_framework import status
 from rest_framework.views import APIView
 from rest_framework.generics import ListAPIView
 from rest_framework.filters import OrderingFilter, SearchFilter
-from .serializers import CategorySerializer,SpaceSerializer, SpaceDetailSerializer, SpaceCreateSerializer
+from .serializers import (CategorySerializer,SpaceSerializer, SpaceDetailSerializer,
+      SpaceCreateSerializer, HostProfileSerializer)
 from .models import Category, Space, SpaceImage
 from .pagination import CategoryPagination, SpacePagination
 from rest_framework.throttling import AnonRateThrottle,UserRateThrottle
@@ -12,11 +13,11 @@ from .filters import SpaceFilter
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
 from rest_framework.permissions import IsAuthenticated
-from .throttlers import SpaceCreateThrottle,SpaceUpdateThrottle,SpaceDeleteThrottle
+from .throttlers import SpaceCreateThrottle,SpaceUpdateThrottle,SpaceDeleteThrottle,HostProfileThrottle
 from rest_framework.parsers import MultiPartParser,FormParser
 from django.db import transaction
 from users.models import HostProfile
-from .permissions import IsSpaceOwner
+from .permissions import IsSpaceOwner, IsHost
 
 
 class CategoryView(ListAPIView):
@@ -83,6 +84,7 @@ class SpaceCreateView(APIView):
                 'name': f"{request.user.first_name} {request.user.last_name}",
         }
                                                                 )
+        HostProfile.is_verified = True
 
         serializer = SpaceCreateSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
@@ -132,8 +134,17 @@ class SpaceDeleteView(APIView):
         return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class HostProfile(APIView):
+    permission_classes = [IsAuthenticated, IsHost]
+    throttle_classes = [HostProfileThrottle]
 
+    def get(self, request):
 
+        profile = get_object_or_404(HostProfile, user=request.user)
+
+        serializer = HostProfileSerializer(instance=profile)
+
+        return Response(serializer, status=status.HTTP_200_OK)
 
 
 

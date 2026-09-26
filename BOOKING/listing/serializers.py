@@ -1,5 +1,7 @@
 from rest_framework import serializers
 from.models import Category,Space,SpaceImage,Amenity
+from users.models import HostProfile
+
 
 
 
@@ -82,7 +84,16 @@ class SpaceCreateSerializer(serializers.ModelSerializer):
         return value
 
 
-
+class HostProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = HostProfile
+        fields = [
+            'name',
+            'bio',
+            'is_verified',
+            'host_since',
+        ]
+        read_only_fields = ['is_verified', 'host_since']
 
 
 

@@ -29,3 +29,12 @@ class SpaceDeleteThrottle(SimpleRateThrottle):
         return self.get_ident(request)
 
 
+class HostProfileThrottle(SimpleRateThrottle):
+
+    scope = 'host-profile'
+
+    def get_cache_key(self, request, view):
+        return self.get_ident(request)
+
+
+
