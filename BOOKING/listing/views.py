@@ -12,13 +12,15 @@ from .filters import SpaceFilter
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
 from rest_framework.permissions import IsAuthenticated
-from .throttlers import SpaceCreateThrottle
+from .throttlers import SpaceCreateThrottle,SpaceUpdateThrottle
 from rest_framework.parsers import MultiPartParser,FormParser
 from django.db import transaction
 from users.models import HostProfile
+from .permissions import IsSpaceOwner
 
 
 class CategoryView(ListAPIView):
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
 
     categories = Category.objects.all()
     serializer_class = CategorySerializer
@@ -31,6 +33,7 @@ class CategoryView(ListAPIView):
 
 
 class SpaceListView(ListAPIView):
+    throttle_classes = [UserRateThrottle, AnonRateThrottle]
 
     queryset = Space.objects.all()
     serializer_class = SpaceSerializer
@@ -73,7 +76,7 @@ class SpaceCreateView(APIView):
     @transaction.atomic()
     def post(self, request):
 
-        images = request.FILE.getlist('images')
+        images = request.FILES.getlist('images')
 
         has_profile, create = HostProfile.objects.get_or_create(
             user=request.user, defaults={
@@ -92,7 +95,29 @@ class SpaceCreateView(APIView):
         return Response(SpaceDetailSerializer(space).data, status=201)
 
 
+class SpaceUpdateView(APIView):
+    permission_classes = [IsAuthenticated,IsSpaceOwner]
+    throttle_classes = [SpaceUpdateThrottle]
+    parser_classes = [MultiPartParser,FormParser]
 
+    @transaction.atomic
+    def patch(self, request, id):
+
+        queryset = get_object_or_404(Space, pk=id)
+        self.check_object_permissions(request, queryset)
+
+        images = request.FILES.getlist('images', [])
+
+        serializer = SpaceCreateSerializer(instance=queryset, data=request.data, partial=True)
+
+        serializer.is_valid(raise_exception=True)
+        space = serializer.save()
+
+
+        for image in images:
+            SpaceImage.objects.create(space=space, image=image)
+
+        return Response(SpaceDetailSerializer(space).data, status=200)
 
 
 

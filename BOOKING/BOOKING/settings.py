@@ -147,14 +147,15 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '5/day',
-        'user': '10/day',
+        'anon': '10/day',
+        'user': '20/day',
 
 
         'register': '5/hour',
         'profile': '10/hour',
         'change_password': '1/day',
-        'space_create': '6/hour'
+        'space_create': '6/hour',
+        'space_update': '2/hour'
     },
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
