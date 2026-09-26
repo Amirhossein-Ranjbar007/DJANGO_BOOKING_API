@@ -12,7 +12,7 @@ from .filters import SpaceFilter
 from django.shortcuts import get_object_or_404
 from django.core.cache import cache
 from rest_framework.permissions import IsAuthenticated
-from .throttlers import SpaceCreateThrottle,SpaceUpdateThrottle
+from .throttlers import SpaceCreateThrottle,SpaceUpdateThrottle,SpaceDeleteThrottle
 from rest_framework.parsers import MultiPartParser,FormParser
 from django.db import transaction
 from users.models import HostProfile
@@ -119,6 +119,17 @@ class SpaceUpdateView(APIView):
 
         return Response(SpaceDetailSerializer(space).data, status=200)
 
+class SpaceDeleteView(APIView):
+    permission_classes = [IsAuthenticated,IsSpaceOwner]
+    throttle_classes = [SpaceDeleteThrottle]
+
+    def delete(self,request,id):
+
+        space = get_object_or_404(Space, pk=id)
+        self.check_object_permissions(request, space)
+
+        space.delete()
+        return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 
