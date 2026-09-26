@@ -38,9 +38,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+
     'users.apps.UsersConfig',
+    'listing.apps.ListingConfig',
 
     'rest_framework_simplejwt.token_blacklist',
+    'django_filters',
 ]
 
 MIDDLEWARE = [
@@ -144,14 +147,21 @@ REST_FRAMEWORK = {
         'rest_framework.throttling.UserRateThrottle'
     ],
     'DEFAULT_THROTTLE_RATES': {
-        'anon': '5/day',
-        'user': '10/day',
+        'anon': '10/day',
+        'user': '20/day',
 
 
         'register': '5/hour',
         'profile': '10/hour',
         'change_password': '1/day',
-    }
+        'space_create': '6/hour',
+        'space_update': '2/hour',
+        'space-delete': '2/hour',
+        'host-profile': '10/hour',
+    },
+    'DEFAULT_FILTER_BACKENDS': [
+        'django_filters.rest_framework.DjangoFilterBackend',
+    ],
 }
 
 SIMPLE_JWT = {
@@ -166,6 +176,17 @@ SIMPLE_JWT = {
 }
 
 
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+        'LOCATION': "redis://127.0.0.1:6380/1",
+        'VERSION': 1,
+        'TIMEOUT': 300,
+        'KEY_PREFIX': 'shop'
 
+    },
+}
+
+SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
 
 

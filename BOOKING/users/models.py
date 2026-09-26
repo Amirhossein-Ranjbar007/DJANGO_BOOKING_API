@@ -26,7 +26,7 @@ class User(AbstractBaseUser, PermissionsMixin):
 
 class HostProfile(models.Model):
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='host')
-    display_name = models.CharField(max_length=100)
+    name = models.CharField(max_length=100)
     bio = models.TextField()
     is_verified = models.BooleanField(default=False)
     host_since = models.DateTimeField(auto_now_add=True)
