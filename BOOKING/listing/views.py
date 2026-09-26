@@ -140,9 +140,9 @@ class HostProfile(APIView):
 
     def get(self, request):
 
-        profile = get_object_or_404(HostProfile, user=request.user)
+        profile_query = get_object_or_404(HostProfile, user=request.user)
 
-        serializer = HostProfileSerializer(instance=profile)
+        serializer = HostProfileSerializer(instance=profile_query)
 
         return Response(serializer, status=status.HTTP_200_OK)
 
