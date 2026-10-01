@@ -41,6 +41,7 @@ INSTALLED_APPS = [
 
     'users.apps.UsersConfig',
     'listing.apps.ListingConfig',
+    'bookings.apps.BookingsConfig',
 
     'rest_framework_simplejwt.token_blacklist',
     'django_filters',
