@@ -19,7 +19,7 @@ class SpaceUpdateThrottle(SimpleRateThrottle):
     def get_cache_key(self, request, view):
         email = request.user.email
         indent = self.get_ident()
-        return f"space-create:{email}:{indent}"
+        return f"space-update:{email}:{indent}"
 
 class SpaceDeleteThrottle(SimpleRateThrottle):
 
@@ -34,7 +34,9 @@ class HostProfileThrottle(SimpleRateThrottle):
     scope = 'host-profile'
 
     def get_cache_key(self, request, view):
-        return self.get_ident(request)
+        email = request.user.email
+        indent = self.get_ident()
+        return f"host_profile:{email}:{indent}"
 
 
 
