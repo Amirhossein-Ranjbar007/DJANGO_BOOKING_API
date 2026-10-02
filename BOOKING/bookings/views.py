@@ -1,3 +1,15 @@
 from django.shortcuts import render
+from rest_framework.response import Response
+from .serializers import BookingCreateSerializer
+from rest_framework.views import APIView
 
-# Create your views here.
+
+
+class BookingCreateView(APIView):
+
+    def post(self, request):
+
+        serializer = BookingCreateSerializer(data=request.data)
+
+
+
