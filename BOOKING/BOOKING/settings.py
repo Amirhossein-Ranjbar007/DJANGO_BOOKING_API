@@ -158,6 +158,7 @@ REST_FRAMEWORK = {
         'space_update': '2/hour',
         'space-delete': '2/hour',
         'host-profile': '10/hour',
+        '': '',
     },
     'DEFAULT_FILTER_BACKENDS': [
         'django_filters.rest_framework.DjangoFilterBackend',
