@@ -15,6 +15,7 @@ from .filters import BookingFilter
 from .pagination import BookingPagination
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
+import time
 
 
 
@@ -37,9 +38,8 @@ class BookingCreateView(APIView):
 class BookingListView(ListAPIView):
 
     permission_classes = [IsAuthenticated]
-    throttle_classes = [AnonRateThrottle,UserRateThrottle]
+    throttle_classes = [UserRateThrottle]
 
-    queryset = Booking.objects.all()
     serializer_class = BookingListSerializer
 
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
@@ -53,9 +53,15 @@ class BookingListView(ListAPIView):
 
     pagination_class = BookingPagination
 
+    def get_queryset(self):
+        return Booking.objects.filter(user=self.request.user)
+
     def list(self, request, *args, **kwargs):
+        user_id = request.user.id
         query_params =request.query_params.urlencode()
-        cache_key = f"Booking_list{query_params}"
+        ts_key = f"booking_ts_{user_id}"
+        timestamp = cache.get_or_set(ts_key, time.time)
+        cache_key = f"booking_list_{user_id}_{timestamp}_{query_params}"
 
         cached_data = cache.get(cache_key)
         if cached_data is not None:
@@ -68,7 +74,7 @@ class BookingListView(ListAPIView):
 class BookingDetailListView(APIView):
 
     permission_classes = [IsAuthenticated]
-    throttle_classes = [AnonRateThrottle,UserRateThrottle]
+    throttle_classes = [UserRateThrottle]
 
     def get(self, request, id):
 
