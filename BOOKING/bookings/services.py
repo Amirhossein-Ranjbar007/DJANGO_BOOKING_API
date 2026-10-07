@@ -2,6 +2,8 @@ from .models import Booking,BookingSlot,BookingSchedule,ScheduleDay
 from listing.models import Space, SpaceStatus
 from rest_framework.exceptions import ValidationError
 from django.db import transaction
+from django.core.cache import cache
+import time
 
 @ transaction.atomic
 def create_booking(*, user, space, start_at, end_at):
@@ -62,5 +64,36 @@ def create_booking(*, user, space, start_at, end_at):
     booking = Booking.objects.create(user=user, space=space, price=total_price, start_at=start_at, end_at=end_at )
 
     return booking
+
+
+@transaction.atomic
+def booking_cancelation(booking):
+
+    if booking.status in ['completed', 'canceled']:
+        raise ValidationError("you can only cancel bookings that they are only in confirmed and pending level")
+
+    if booking.status in ['confirmed', 'pending']:
+        booking.status = 'canceled'
+
+    booking.save()
+
+    cache_key = f"BookingDetail:{booking.id}:{booking.user_id}"
+    cache.delete(cache_key)
+
+    list_timestamp_key = f'booking_ts_{booking.user_id}'
+    cache.set(list_timestamp_key, time.time())
+
+    return booking
+
+
+
+
+
+
+
+
+
+
+
 
 

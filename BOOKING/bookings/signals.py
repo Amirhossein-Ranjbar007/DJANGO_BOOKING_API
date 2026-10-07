@@ -14,7 +14,7 @@ def invalidate_booking_cache(sender, instance, **kwargs):
 
 @receiver([post_save,post_delete], sender=Booking)
 def invalidate_booking_details(sender, instance, **kwargs):
-    cache_key = f"BookingDetail:{instance.id}"
+    cache_key = f"BookingDetail:{instance.id}:{instance.user.id}"
     cache.delete(cache_key)
 
 

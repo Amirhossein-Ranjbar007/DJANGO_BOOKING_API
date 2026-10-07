@@ -1,8 +1,9 @@
 from django.shortcuts import render
 from rest_framework.response import Response
-from .serializers import BookingCreateSerializer,BookingListSerializer, BookingDetailListSerializers
+from .serializers import (BookingCreateSerializer,BookingListSerializer, BookingDetailListSerializers,
+ HostBookingListSerializer)
 from rest_framework.views import APIView
-from .services import create_booking
+from .services import create_booking, booking_cancelation
 from rest_framework import status
 from rest_framework.permissions import IsAuthenticated
 from .throttling import BookingCreateThrottle
@@ -16,6 +17,8 @@ from .pagination import BookingPagination
 from django.core.cache import cache
 from django.shortcuts import get_object_or_404
 import time
+from django.db import transaction
+from listing.permissions import IsHost
 
 
 
@@ -44,7 +47,7 @@ class BookingListView(ListAPIView):
 
     filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
 
-    search_fields = ['space__name']
+    search_fields = ['space__title']
 
     ordering_fields = ['price', 'status', 'start_at']
     ordering = ['status']
@@ -71,24 +74,75 @@ class BookingListView(ListAPIView):
         cache.set(cache_key,response.data, timeout=120)
         return response
 
-class BookingDetailListView(APIView):
+class BookingDetailView(APIView):
 
     permission_classes = [IsAuthenticated]
     throttle_classes = [UserRateThrottle]
 
     def get(self, request, id):
 
-        cache_key = f"BookingDetail:{id}"
+        cache_key = f"BookingDetail:{id}:{request.user.id}"
         cached_data = cache.get(cache_key)
 
         if cached_data is not None:
             return Response(cached_data)
 
-        queryset = get_object_or_404(Booking, pk=id)
-        serializer = BookingDetailListSerializers(instance=queryset, many=True)
+        queryset = get_object_or_404(Booking, pk=id, user=request.user)
+        serializer = BookingDetailListSerializers(instance=queryset)
         cache.set(cache_key, serializer.data)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
+
+
+
+class BookingCancelView(APIView):
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
+
+    @transaction.atomic
+    def post(self, request, id):
+
+        queryset = get_object_or_404(Booking, pk=id, user=request.user)
+        booking_cancelation(booking=queryset)
+
+        return Response(status=status.HTTP_204_NO_CONTENT)
+
+
+
+class HostBookingListView(ListAPIView):
+
+    permission_classes = [IsAuthenticated, IsHost]
+    throttle_classes = [UserRateThrottle]
+
+    serializer_class = HostBookingListSerializer
+
+    filter_backends = [SearchFilter, OrderingFilter, DjangoFilterBackend]
+    pagination_class = BookingPagination
+
+    ordering_fields = ['space', 'price', 'status', 'created_at']
+    ordering = ['-created_at']
+
+    search_fields = ['space__title']
+
+    filterset_class = BookingFilter
+
+    def get_queryset(self):
+        return Booking.objects.filter(
+            space__host__user=self.request.user
+        )
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

@@ -21,7 +21,10 @@ class BookingDetailListSerializers(serializers.ModelSerializer):
         model = Booking
         fields = ['space', 'user', 'status', 'price', 'start_at', 'end_at', 'created_at']
 
-
+class HostBookingListSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Booking
+        fields = ['space', 'price', 'status', 'created_at']
 
 
 
