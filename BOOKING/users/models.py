@@ -4,7 +4,7 @@ from .manager import UserManager
 
 class User(AbstractBaseUser, PermissionsMixin):
     email= models.EmailField(max_length=255, unique=True)
-    phone = models.CharField(max_length=11, unique=True)
+    phone = models.CharField(max_length=11, unique=True, blank=True, null=True)
     first_name = models.CharField(max_length=100)
     last_name = models.CharField(max_length=100)
     avatar = models.ImageField(null=True, blank=True)
@@ -16,7 +16,7 @@ class User(AbstractBaseUser, PermissionsMixin):
     updated = models.DateTimeField(auto_now=True)
 
     USERNAME_FIELD = 'email'
-    REQUIRED_FIELDS = ['phone', 'first_name', 'last_name']
+    REQUIRED_FIELDS = ['first_name', 'last_name']
 
 
 

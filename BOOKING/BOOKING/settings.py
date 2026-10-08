@@ -43,9 +43,25 @@ INSTALLED_APPS = [
     'listing.apps.ListingConfig',
     'bookings.apps.BookingsConfig',
 
+    # oauth:
+    'rest_framework',
+    'dj_rest_auth',
+
     'rest_framework_simplejwt.token_blacklist',
     'django_filters',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'django.contrib.sites',
+
 ]
+SITE_ID = 1
+
+REST_AUTH = {
+    'TOKEN_MODEL': None,
+    'USE_JWT': True,
+}
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -55,6 +71,7 @@ MIDDLEWARE = [
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
 ]
 
 ROOT_URLCONF = 'BOOKING.urls'
@@ -180,15 +197,14 @@ SIMPLE_JWT = {
 
 CACHES = {
     'default': {
-        'BACKEND': 'django.core.cache.backends.redis.RedisCache',
-        'LOCATION': "redis://127.0.0.1:6380/1",
+        'BACKEND': 'django.core.cache.backends.locmem.LocMemCache',
         'VERSION': 1,
         'TIMEOUT': 300,
-        'KEY_PREFIX': 'shop'
+        'KEY_PREFIX': 'rent'
 
     },
 }
 
-SESSION_ENGINE = 'django.contrib.sessions.backends.cache'
+SESSION_ENGINE = 'django.contrib.sessions.backends.db'
 
 

@@ -9,6 +9,11 @@ from rest_framework.permissions import IsAuthenticated
 from rest_framework.throttling import AnonRateThrottle,UserRateThrottle
 from rest_framework import status
 
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
+
+
 
 class UserRegisterView(APIView):
     throttle_classes = [RegisterThrottle]
@@ -58,7 +63,12 @@ class UserLogoutView(APIView):
         serializer = UserLogoutSerializer(data=request.data)
         if serializer.is_valid(raise_exception=True):
             serializer.save()
-            return Response(status=204)
+            return Response(status=status.HTTP_204_NO_CONTENT)
 
 
+class GoogleLogin(SocialLoginView):
+
+    adapter_class = GoogleOAuth2Adapter
+    client_class = OAuth2Client
+    callback_url = 'http://127.0.0.1:8000/api/auth/google/'
 
