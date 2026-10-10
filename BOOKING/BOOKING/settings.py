@@ -42,6 +42,7 @@ INSTALLED_APPS = [
     'users.apps.UsersConfig',
     'listing.apps.ListingConfig',
     'bookings.apps.BookingsConfig',
+    'payments.apps.PaymentsConfig',
 
     # oauth:
     'rest_framework',
@@ -62,6 +63,13 @@ REST_AUTH = {
     'TOKEN_MODEL': None,
     'USE_JWT': True,
 }
+
+ACCOUNT_USER_MODEL_USERNAME_FIELD = None
+
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'password1*', 'password2*']
+
+ACCOUNT_LOGIN_METHODS = {'email'}
+
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',

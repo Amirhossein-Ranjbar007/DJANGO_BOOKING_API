@@ -53,7 +53,6 @@ class Space(models.Model):
     capacity = models.PositiveIntegerField(blank=True, null=True)
 
 
-
     def __str__(self):
         return f"{self.category.name}:{self.title}"
 
