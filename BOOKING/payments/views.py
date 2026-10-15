@@ -14,7 +14,9 @@ from .pagination import PaymentsListPagination
 from .filters import PaymentListFilter
 from django.db import transaction
 from rest_framework.exceptions import PermissionDenied
-from .mockpay import get_session
+from .mockpay import get_session, execute_payment
+from rest_framework.exceptions import ValidationError
+from django.conf import settings
 
 
 
@@ -86,13 +88,34 @@ class MockPaySessionView(APIView):
         return Response(response, status=status.HTTP_200_OK)
 
 
+class MockpayExecuteView(APIView):
 
+    permission_classes = [IsAuthenticated]
+    throttle_classes = [UserRateThrottle]
 
+    def post(self, request, authority):
 
+        """Simulates a payment gateway response for demonstration purposes.
+        In production, the result must be verified through a real payment gateway API.
+        """
 
+        if not settings.DEBUG:
+            raise PermissionDenied('Mock payment is only available in debug mode.')
 
+        result = request.data.get('result')
+        if result in ['success', 'failure']:
 
+            session = get_session(authority)
 
+            if request.user.id != session.payments.user_id:
+                raise ValidationError('ids are not match!')
+
+            successful = (result == 'success')
+
+            exe = execute_payment(session=session, successful=successful)
+            session.refresh_from_db()
+
+            return Response({'payment_id': exe.id, 'payment_status': exe.status, 'session_status': session.status,}, status=status.HTTP_200_OK)
 
 
 

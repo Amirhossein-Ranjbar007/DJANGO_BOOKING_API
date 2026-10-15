@@ -25,6 +25,11 @@ def get_session(authority):
 
 @transaction.atomic
 def execute_payment(*, session, successful):
+
+    """Simulates payment execution for demonstration purposes.
+    In production, integrate a real payment gateway and verify results server-side.
+    """
+
     session = (
         MockPaymentSession.objects
         .select_for_update()

@@ -16,6 +16,15 @@ def create_payment(*, user, booking):
     if Payments.objects.filter(booking=booking, status=PaymentsStatus.SUCCESSFUL).exists():
         raise ValidationError(f"this booking has already paid!")
 
+    pending_payment = Payments.objects.filter(
+        booking=booking,
+        user=user,
+        status=PaymentsStatus.PENDING
+    ).first()
+
+    if pending_payment:
+        return pending_payment
+
     payment = Payments.objects.create(user=user, booking=booking, amount=booking.price, status=PaymentsStatus.PENDING)
 
     PaymentTransaction.objects.create(payments=payment, status=PaymentTransactionStatus.PENDING)
