@@ -7,7 +7,7 @@ urlpatterns = [
     path('create/', views.PaymentCreateView.as_view(), name='payment_create'),
     path('list/', views.PaymentListView.as_view(), name='payment_list'),
     path('mockpay/<uuid:authority>/', views.MockPaySessionView.as_view(), name='mockpay-session'),
-    path('mockpay-exe/<uuid:authority>/', views.MockpayExecuteView.as_view(), nam='mockpay_exe'),
+    path('mockpay-exe/<uuid:authority>/', views.MockpayExecuteView.as_view(), name='mockpay_exe'),
 ]
 
 
