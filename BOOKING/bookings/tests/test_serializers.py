@@ -1,8 +1,9 @@
 from django.test import TestCase
 from django.contrib.auth import get_user_model
 
-from bookings.serializers import BookingCreateSerializer
+from bookings.serializers import BookingCreateSerializer, BookingListSerializer, BookingDetailListSerializers
 from listing.models import HostProfile, Category, Space
+from bookings.models import Booking, BookingStatus
 
 
 User = get_user_model()
@@ -42,7 +43,7 @@ class BookingCreateSerializerTests(TestCase):
             address="Test Address",
         )
 
-    def test_valid_data(self):
+    def test_book_create_serializer_valid_data(self):
         serializer = BookingCreateSerializer(
             data={
                 "space": self.space.pk,
@@ -75,3 +76,48 @@ class BookingCreateSerializerTests(TestCase):
 
         self.assertFalse(serializer.is_valid())
         self.assertIn("space", serializer.errors)
+
+
+    def test_book_list_serializer(self):
+        booking = Booking.objects.create(
+            space=self.space,
+            user=self.user,
+            price=100,
+            start_at='2026-11-01T10:00:00Z',
+            end_at='2026-11-01T12:00:00Z'
+        )
+
+        
+
+        serializer = BookingListSerializer(instance=booking)
+
+        self.assertEqual(serializer.data['price'], 100)
+        self.assertIn('status', serializer.data)
+        self.assertEqual(serializer.data['space'], self.space.pk)
+        self.assertGreaterEqual(serializer.data['price'], 0)
+        self.assertNotIn('user', serializer.data)
+
+
+
+    def test_book_detail_serializer(self):
+        booking = Booking.objects.create(
+            space=self.space,
+            user=self.user,
+            price=100,
+            start_at='2026-11-01T10:00:00Z',
+            end_at='2026-11-01T12:00:00Z',
+        )
+
+        serializer = BookingDetailListSerializers(instance=booking)
+
+        self.assertEqual(serializer.data['status'], BookingStatus.PENDING)
+        self.assertEqual(serializer.data['space'], self.space.pk)
+        self.assertEqual(serializer.data['user'], self.user.pk)
+        self.assertGreaterEqual(serializer.data['price'], 0)
+        self.assertEqual(serializer.data['price'], 100)
+        self.assertEqual(serializer.data['start_at'], '2026-11-01T10:00:00Z')
+        self.assertEqual(serializer.data['end_at'], '2026-11-01T12:00:00Z')
+
+
+
+
